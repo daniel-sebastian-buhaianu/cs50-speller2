@@ -9,31 +9,30 @@
 #include "dictionary.h"
 
 // Global variables
-node *trie; // the root node of the trie
+TrieNode *trie; // the root node of the trie
 int dicwords = 0; // the number of words in the dictionary
 
 // Returns true if word is in dictionary, else false
 bool check(const char *word)
 {
-    node *p = trie;
+    TrieNode *p = trie;
     
     for (int i = 0, n = strlen(word); i < n; i++)
     {
         char ch[2];
         ch[0] = word[i];
         ch[1] = '\0';
-
         int index = hash(ch);
 
-        if (p->next[index] == NULL)
+        if (p->children[index] == NULL)
         {
             return false;
         }
 
-        p = p->next[index];
+        p = p->children[index];
     }
     
-    return p->end_of_word;
+    return p->is_end_of_word;
 }
 
 // Hashes word to a number
@@ -57,7 +56,7 @@ bool load(const char *dictionary)
         return false;
     }
 
-    trie = create_node();
+    trie = create_trie_node();
 
     // Read each word from the dictionary
     char word[LENGTH + 1];
@@ -71,10 +70,12 @@ bool load(const char *dictionary)
         {
             dicwords++;
 
-            add_word(trie, word);
+            add_word_to_trie(trie, word);
         }
     }
 
+    fclose(dicfile);
+    
     return true;
 }
 
@@ -90,6 +91,7 @@ bool unload(void)
     if (trie != NULL)
     {
         unload_trie(trie);
+
         return true;
     }
     else
@@ -99,49 +101,48 @@ bool unload(void)
 }
 
 // Creates a new trie node
-node *create_node(void)
+TrieNode *create_trie_node(void)
 {
-    node *p = malloc(sizeof(node));
-    p->end_of_word = false;
+    TrieNode *p = malloc(sizeof(TrieNode));
+
+    p->is_end_of_word = false;
 
     for (int i = 0; i < ALPHABET_SIZE; i++)
     {
-        p->next[i] = NULL;
+        p->children[i] = NULL;
     }
 
     return p;
 }
 
 // Adds a new word to the trie
-void add_word(node *root, char *word)
+void add_word_to_trie(TrieNode *root, char *word)
 {
-    node *p = root;
+    TrieNode *p = root;
 
     for (int i = 0, n = strlen(word); i < n; i++)
     {
-        // Create a string which contains just the word[i] character
         char ch[2];
         ch[0] = word[i];
-        ch[1] = '\n';
-
+        ch[1] = '\0';
         int index = hash(ch);
 
-        if (p->next[index] == NULL)
+        if (p->children[index] == NULL)
         {
-            p->next[index] = create_node();
+            p->children[index] = create_trie_node();
         }
 
-        p = p->next[index];
+        p = p->children[index];
     }
 
-    p->end_of_word = true;
+    p->is_end_of_word = true;
 }
 
 // Unloads all trie nodes from memory
-void unload_trie(node *root)
+void unload_trie(TrieNode *node)
 {
     // Handle base case
-    if (root == NULL)
+    if (node == NULL)
     {
         return;
     }
@@ -149,8 +150,8 @@ void unload_trie(node *root)
     // Free memory for all nodes in trie recursively
     for (int i = 0; i < ALPHABET_SIZE; i++)
     {
-        unload_trie(root->next[i]);
+        unload_trie(node->children[i]);
     }
 
-    free(root);
+    free(node);
 }

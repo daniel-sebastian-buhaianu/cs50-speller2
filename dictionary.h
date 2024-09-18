@@ -13,12 +13,11 @@
 // A-Z letters and apostroph character
 #define ALPHABET_SIZE 27
 
-// Represents a node in a trie
-typedef struct node
+typedef struct TrieNode
 {
-    struct node *next[ALPHABET_SIZE + 1];
-    bool end_of_word;
-} node;
+    struct TrieNode *children[ALPHABET_SIZE + 1];
+    bool is_end_of_word;
+} TrieNode;
 
 // Prototypes
 bool check(const char *word);
@@ -26,8 +25,8 @@ unsigned int hash(const char *word);
 bool load(const char *dictionary);
 unsigned int size(void);
 bool unload(void);
-node *create_node(void);
-void add_word(node *root, char *word);
-void unload_trie(node *root);
+TrieNode *create_trie_node(void);
+void add_word_to_trie(TrieNode *root, char *word);
+void unload_trie(TrieNode *node);
 
 #endif // DICTIONARY_H
