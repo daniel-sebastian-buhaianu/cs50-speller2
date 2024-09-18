@@ -15,8 +15,25 @@ int dicwords = 0; // the number of words in the dictionary
 // Returns true if word is in dictionary, else false
 bool check(const char *word)
 {
-    // TODO
-    return false;
+    node *p = trie;
+    
+    for (int i = 0, n = strlen(word); i < n; i++)
+    {
+        char ch[2];
+        ch[0] = word[i];
+        ch[1] = '\0';
+
+        int index = hash(ch);
+
+        if (p->next[index] == NULL)
+        {
+            return false;
+        }
+
+        p = p->next[index];
+    }
+    
+    return p->end_of_word;
 }
 
 // Hashes word to a number
