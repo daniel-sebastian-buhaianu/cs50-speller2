@@ -28,5 +28,6 @@ unsigned int size(void);
 bool unload(void);
 node *create_node(void);
 void add_word(node *root, char *word);
+void unload_trie(node *root);
 
 #endif // DICTIONARY_H

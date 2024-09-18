@@ -87,8 +87,15 @@ unsigned int size(void)
 // Unloads dictionary from memory, returning true if successful, else false
 bool unload(void)
 {
-    // TODO
-    return false;
+    if (trie != NULL)
+    {
+        unload_trie(trie);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 // Creates a new trie node
@@ -128,4 +135,22 @@ void add_word(node *root, char *word)
     }
 
     p->end_of_word = true;
+}
+
+// Unloads all trie nodes from memory
+void unload_trie(node *root)
+{
+    // Handle base case
+    if (root == NULL)
+    {
+        return;
+    }
+
+    // Free memory for all nodes in trie recursively
+    for (int i = 0; i < ALPHABET_SIZE; i++)
+    {
+        unload_trie(root->next[i]);
+    }
+
+    free(root);
 }
